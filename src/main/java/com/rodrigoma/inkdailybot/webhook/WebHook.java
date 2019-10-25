@@ -3,7 +3,9 @@ package com.rodrigoma.inkdailybot.webhook;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class WebHook {
 
     private static final Logger logger = getLogger(WebHook.class);
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Value("${telegram.bot.sendmessage:#{null}}")
     private String telegramUrlSendMessage;
@@ -49,7 +54,8 @@ public class WebHook {
             int msgId = jUpdate.getAsJsonObject("message").get("message_id").getAsInt();
             String user = jUpdate.getAsJsonObject("message").getAsJsonObject("from").get("first_name").getAsString();
             logger.info("MSG-ID: {}, USER: {}", msgId, user);
-            sendTelegramMessage("Legal a imagem " + user, msgId);
+
+            sendTelegramMessage(stringRedisTemplate.opsForSet().randomMember("motivation").replace("NOME", user), msgId);
         }
 
         return new ResponseEntity(OK);
@@ -61,6 +67,7 @@ public class WebHook {
                 .field(TELEGRAM_FIELD_TEXT, text)
                 .field(TELEGRAM_FIELD_PARSE_MODE, TELEGRAM_VALUE_PARSE_MODE)
                 .field("reply_to_message_id", String.valueOf(replyMsgId))
+                .field("disable_notification", "true")
                 .asJson();
     }
 }
