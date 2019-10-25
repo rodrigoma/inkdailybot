@@ -45,7 +45,7 @@ public class SendWordsJob {
     @Value("${telegram.bot.token:#{null}}")
     private String telegramToken;
 
-    @Value("#{new Long('${telegram.chat.id.test:0}')}")
+    @Value("#{new Long('${telegram.chat.id:0}')}")
     private Long telegramChatId;
 
     private static final String TELEGRAM_TO_REPLACE = "<REPLACE_TOKEN>";
