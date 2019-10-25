@@ -1,6 +1,7 @@
 package com.rodrigoma.inkdailybot.webhook;
 
-import com.rodrigoma.inkdailybot.webhook.model.Update;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +20,16 @@ public class WebHook {
     private static final Logger logger = getLogger(WebHook.class);
 
     @RequestMapping(value = "/webhooks", method = POST, consumes = {APPLICATION_JSON_VALUE})
-    public @ResponseBody ResponseEntity receiveUpdate(@RequestBody final Update update) {
-        logger.info("Mensagem recebida! {}", update);
+    public @ResponseBody ResponseEntity receiveUpdate(@RequestBody final String update) {
+        JsonObject jUpdate = JsonParser.parseString(update).getAsJsonObject();
+        logger.info("Mensagem recebida! {}", jUpdate.toString());
+
+        if (jUpdate.has("photo")) {
+            logger.info("Tem node Photo");
+        } else {
+            logger.info("NÃO tem node Photo");
+        }
+
         return new ResponseEntity(OK);
     }
 }
