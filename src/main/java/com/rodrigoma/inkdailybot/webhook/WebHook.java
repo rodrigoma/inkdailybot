@@ -24,7 +24,7 @@ public class WebHook {
         JsonObject jUpdate = JsonParser.parseString(update).getAsJsonObject();
         logger.info("Mensagem recebida! {}", jUpdate.toString());
 
-        if (jUpdate.has("photo")) {
+        if (jUpdate.getAsJsonObject("message").has("photo")) {
             logger.info("Tem node Photo");
         } else {
             logger.info("NÃO tem node Photo");
