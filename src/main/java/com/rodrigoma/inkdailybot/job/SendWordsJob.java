@@ -57,7 +57,7 @@ public class SendWordsJob {
     private static final String FORMAT_DATE = "yyyyMMdd";
 
 //    @Scheduled(cron = "0 43 12 * * ?", zone = "America/Sao_Paulo") // TODO TESTE
-    @Scheduled(cron = "0 10 8 * * ?", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 35 9 * * *", zone = "America/Sao_Paulo")
     public void send() {
         logger.info("Bot rodando...");
 
