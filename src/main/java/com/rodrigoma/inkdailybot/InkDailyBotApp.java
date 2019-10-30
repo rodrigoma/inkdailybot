@@ -25,5 +25,8 @@ public class InkDailyBotApp {
         logger.info("========== BEANS ==========");
         stream(beanNames).forEachOrdered(beanName -> logger.info("BEAN: {}", beanName));
         logger.info("========== BEANS ==========");
+
+        //TODO se for deixar isso open source
+        // verificar no init se as keys no redis existe, não existindo, criar as keys
     }
 }

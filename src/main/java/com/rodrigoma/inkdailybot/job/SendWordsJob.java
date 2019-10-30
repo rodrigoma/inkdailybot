@@ -1,5 +1,7 @@
 package com.rodrigoma.inkdailybot.job;
 
+import com.rodrigoma.inkdailybot.services.BotMessage;
+import com.rodrigoma.inkdailybot.services.Telegram;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -16,7 +18,6 @@ import static java.lang.String.join;
 import static java.time.LocalDate.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static kong.unirest.Unirest.get;
-import static kong.unirest.Unirest.post;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -26,6 +27,12 @@ public class SendWordsJob {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private BotMessage botMessage;
+
+    @Autowired
+    private Telegram telegram;
 
     @Value("${word.url:#{null}}")
     private String randomWordUrl;
@@ -39,25 +46,10 @@ public class SendWordsJob {
 //    private static final String RANDOM_WORD_HEADER_HOST = "x-rapidapi-host";
 //    private static final String RANDOM_WORD_HEADER_KEY = "x-rapidapi-key";
 
-    @Value("${telegram.bot.sendmessage:#{null}}")
-    private String telegramUrlSendMessage;
-
-    @Value("${telegram.bot.token:#{null}}")
-    private String telegramToken;
-
-    @Value("#{new Long('${telegram.chat.id:0}')}")
-    private Long telegramChatId;
-
-    private static final String TELEGRAM_TO_REPLACE = "<REPLACE_TOKEN>";
-    private static final String TELEGRAM_FIELD_CHAT_ID = "chat_id";
-    private static final String TELEGRAM_FIELD_TEXT = "text";
-    private static final String TELEGRAM_FIELD_PARSE_MODE = "parse_mode";
-    private static final String TELEGRAM_VALUE_PARSE_MODE = "Markdown";
-
     private static final String FORMAT_DATE = "yyyyMMdd";
 
 //    @Scheduled(cron = "0 43 12 * * ?", zone = "America/Sao_Paulo") // TODO TESTE
-    @Scheduled(cron = "0 35 9 * * *", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 40 8 * * *", zone = "America/Sao_Paulo")
     public void send() {
         logger.info("Bot rodando...");
 
@@ -75,27 +67,11 @@ public class SendWordsJob {
             wordsToInk = get3Words(fmtToday);
         }
 
-        sendTelegramMessage(mountMessage(wordsToInk));
+        telegram.sendMessage(mountMessage(wordsToInk));
     }
 
     private String mountMessage(Set<String> wordsToink) {
-        String message = "Bom Dia Hoomans!\n" +
-                "Aqui estão os temas que selecionei para vcs\n" +
-                "*Temas de hoje: " +
-                join(" - ", wordsToink) +
-                "*\n" +
-                "Então bora desenhar!! \uD83C\uDFA8";
-
-        return message;
-    }
-
-    private void sendTelegramMessage(String text) {
-        logger.info("ChatID: {}, TOKEN: {}, URL: {} ", telegramChatId, telegramToken, telegramUrlSendMessage);
-        post(telegramUrlSendMessage.replace(TELEGRAM_TO_REPLACE, telegramToken))
-                .field(TELEGRAM_FIELD_CHAT_ID, telegramChatId)
-                .field(TELEGRAM_FIELD_TEXT, text)
-                .field(TELEGRAM_FIELD_PARSE_MODE, TELEGRAM_VALUE_PARSE_MODE)
-                .asJson();
+        return botMessage.retriveMessage(join(" - ", wordsToink));
     }
 
     private Set<String> get3Words(String fmtToday) {
@@ -128,6 +104,6 @@ public class SendWordsJob {
         String word = response.getBody().getArray().getString(0);
 
         logger.info("Nova palavra: {}", word);
-        return word;
+        return word.toUpperCase();
     }
 }

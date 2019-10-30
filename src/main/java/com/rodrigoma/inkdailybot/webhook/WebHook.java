@@ -2,9 +2,9 @@ package com.rodrigoma.inkdailybot.webhook;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rodrigoma.inkdailybot.services.Telegram;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
-import static kong.unirest.Unirest.post;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -28,20 +27,8 @@ public class WebHook {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @Value("${telegram.bot.sendmessage:#{null}}")
-    private String telegramUrlSendMessage;
-
-    @Value("${telegram.bot.token:#{null}}")
-    private String telegramToken;
-
-    @Value("#{new Long('${telegram.chat.id:0}')}")
-    private Long telegramChatId;
-
-    private static final String TELEGRAM_TO_REPLACE = "<REPLACE_TOKEN>";
-    private static final String TELEGRAM_FIELD_CHAT_ID = "chat_id";
-    private static final String TELEGRAM_FIELD_TEXT = "text";
-    private static final String TELEGRAM_FIELD_PARSE_MODE = "parse_mode";
-    private static final String TELEGRAM_VALUE_PARSE_MODE = "Markdown";
+    @Autowired
+    private Telegram telegram;
 
     @RequestMapping(value = "/webhooks", method = POST, consumes = {APPLICATION_JSON_VALUE})
     public @ResponseBody ResponseEntity receiveUpdate(@RequestBody final String update) {
@@ -55,19 +42,9 @@ public class WebHook {
             String user = jUpdate.getAsJsonObject("message").getAsJsonObject("from").get("first_name").getAsString();
             logger.info("MSG-ID: {}, USER: {}", msgId, user);
 
-            sendTelegramMessage(stringRedisTemplate.opsForSet().randomMember("motivation").replace("NOME", user), msgId);
+            telegram.replyMessage(stringRedisTemplate.opsForSet().randomMember("motivation").replace("NOME", user), msgId);
         }
 
         return new ResponseEntity(OK);
-    }
-
-    private void sendTelegramMessage(String text, int replyMsgId) {
-        post(telegramUrlSendMessage.replace(TELEGRAM_TO_REPLACE, telegramToken))
-                .field(TELEGRAM_FIELD_CHAT_ID, telegramChatId)
-                .field(TELEGRAM_FIELD_TEXT, text)
-                .field(TELEGRAM_FIELD_PARSE_MODE, TELEGRAM_VALUE_PARSE_MODE)
-                .field("reply_to_message_id", String.valueOf(replyMsgId))
-                .field("disable_notification", "true")
-                .asJson();
     }
 }
