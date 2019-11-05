@@ -124,11 +124,11 @@
                     <assembleDirectory>target</assembleDirectory>
                     <programs>
                         <program>
-                            <mainClass>InkDailyBotApp</mainClass>
+                            <mainClass>${start-class}</mainClass>
                             <name>worker</name>
                         </program>
                         <program>
-                            <mainClass>InkDailyBotApp</mainClass>
+                            <mainClass>${start-class}</mainClass>
                             <name>oneoff</name>
                         </program>
                     </programs>
