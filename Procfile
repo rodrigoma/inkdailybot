@@ -1,1 +1,1 @@
-worker: java -Dserver.port=$PORT $JAVA_OPTS -jar target/inkdailybot-1.0-SNAPSHOT.jar
+worker: sh target/bin/worker
