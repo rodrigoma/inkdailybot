@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -48,8 +47,6 @@ public class SendWordsJob {
 
     private static final String FORMAT_DATE = "yyyyMMdd";
 
-//    @Scheduled(cron = "0 43 12 * * ?", zone = "America/Sao_Paulo") // TODO TESTE
-    @Scheduled(cron = "0 40 9 * * *", zone = "America/Sao_Paulo")
     public void send() {
         logger.info("Bot rodando...");
 

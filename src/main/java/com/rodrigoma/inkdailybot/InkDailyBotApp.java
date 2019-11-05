@@ -1,17 +1,17 @@
 package com.rodrigoma.inkdailybot;
 
+import com.rodrigoma.inkdailybot.job.SendWordsJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
+import static java.lang.System.exit;
 import static java.util.Arrays.sort;
 import static java.util.Arrays.stream;
 import static org.springframework.boot.SpringApplication.run;
 
 @SpringBootApplication
-@EnableScheduling
 public class InkDailyBotApp {
 
     private static final Logger logger = LoggerFactory.getLogger(InkDailyBotApp.class);
@@ -25,6 +25,11 @@ public class InkDailyBotApp {
         logger.info("========== BEANS ==========");
         stream(beanNames).forEachOrdered(beanName -> logger.info("BEAN: {}", beanName));
         logger.info("========== BEANS ==========");
+
+        SendWordsJob sendWordsJob = context.getBean(SendWordsJob.class);
+        sendWordsJob.send();
+
+        exit(0);
 
         //TODO se for deixar isso open source
         // verificar no init se as keys no redis existe, não existindo, criar as keys
