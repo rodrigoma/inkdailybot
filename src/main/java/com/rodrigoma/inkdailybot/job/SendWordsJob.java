@@ -1,22 +1,17 @@
 package com.rodrigoma.inkdailybot.job;
 
-import com.rodrigoma.inkdailybot.services.BotMessage;
+import com.rodrigoma.inkdailybot.services.Pictionary;
+import com.rodrigoma.inkdailybot.services.Redis;
 import com.rodrigoma.inkdailybot.services.Telegram;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static java.lang.String.join;
 import static java.time.LocalDate.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static kong.unirest.Unirest.get;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -24,28 +19,18 @@ public class SendWordsJob {
 
     private static final Logger logger = getLogger(SendWordsJob.class);
 
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Autowired
-    private BotMessage botMessage;
-
-    @Autowired
-    private Telegram telegram;
-
-    @Value("${word.url:#{null}}")
-    private String randomWordUrl;
-
-//    @Value("${word.header.host:#{null}}")
-//    private String randomWordHost;
-//
-//    @Value("${word.header.key:#{null}}")
-//    private String randomWordKey;
-
-//    private static final String RANDOM_WORD_HEADER_HOST = "x-rapidapi-host";
-//    private static final String RANDOM_WORD_HEADER_KEY = "x-rapidapi-key";
+    private final Redis redis;
+    private final Telegram telegram;
+    private final Pictionary pictionary;
 
     private static final String FORMAT_DATE = "yyyyMMdd";
+
+    @Autowired
+    public SendWordsJob(Redis redis, Telegram telegram, Pictionary pictionary) {
+        this.redis = redis;
+        this.telegram = telegram;
+        this.pictionary = pictionary;
+    }
 
     public void send() {
         logger.info("Bot rodando...");
@@ -56,51 +41,18 @@ public class SendWordsJob {
 
         Set<String> wordsToInk;
 
-        if (stringRedisTemplate.hasKey(fmtToday)) {
+        if (redis.hasKey(fmtToday)) {
             logger.info("KEY encontrada...");
-            wordsToInk = stringRedisTemplate.opsForSet().members(fmtToday);
+            wordsToInk = redis.retriveWords(fmtToday);
         } else {
             logger.info("KEY não encontrada...");
-            wordsToInk = get3Words(fmtToday);
+            wordsToInk = pictionary.getRandomWord(fmtToday);
         }
 
         telegram.sendMessage(mountMessage(wordsToInk));
     }
 
     private String mountMessage(Set<String> wordsToink) {
-        return botMessage.retriveMessage(join(" - ", wordsToink));
-    }
-
-    private Set<String> get3Words(String fmtToday) {
-        logger.info("Gerando palavras para hoje...");
-
-        Set<String> wordsToInk = new HashSet<>();
-
-        do {
-            String word = getRandomWord();
-
-            if (word != null) {
-                wordsToInk.add(word);
-                stringRedisTemplate.opsForSet().add(fmtToday, word);
-                logger.info("Palavra {} gerada", wordsToInk.size());
-            }
-        } while (wordsToInk.size() < 3);
-
-        return wordsToInk;
-    }
-
-    private String getRandomWord() {
-        logger.info("Buscando nova palavra...");
-        HttpResponse<JsonNode> response = get(randomWordUrl).asJson();
-
-        if (response.getStatus() != 200) {
-            logger.info("Servico {} retornou null", randomWordUrl);
-            return null;
-        }
-
-        String word = response.getBody().getArray().getString(0);
-
-        logger.info("Nova palavra: {}", word);
-        return word.toUpperCase();
+        return redis.retriveMessage(join(" - ", wordsToink));
     }
 }

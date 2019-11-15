@@ -1,11 +1,11 @@
-package com.rodrigoma.inkdailybot.webhook;
+package com.rodrigoma.inkdailybot.api.webhook;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rodrigoma.inkdailybot.services.Redis;
 import com.rodrigoma.inkdailybot.services.Telegram;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +24,14 @@ public class WebHook {
 
     private static final Logger logger = getLogger(WebHook.class);
 
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private final Redis redis;
+    private final Telegram telegram;
 
     @Autowired
-    private Telegram telegram;
+    public WebHook(Redis redis, Telegram telegram) {
+        this.redis = redis;
+        this.telegram = telegram;
+    }
 
     @RequestMapping(value = "/webhooks", method = POST, consumes = {APPLICATION_JSON_VALUE})
     public @ResponseBody ResponseEntity receiveUpdate(@RequestBody final String update) {
@@ -42,7 +45,7 @@ public class WebHook {
             String user = jUpdate.getAsJsonObject("message").getAsJsonObject("from").get("first_name").getAsString();
             logger.info("MSG-ID: {}, USER: {}", msgId, user);
 
-            telegram.replyMessage(stringRedisTemplate.opsForSet().randomMember("motivation").replace("NOME", user), msgId);
+            telegram.replyMessage(redis.retriveMotivation(user), msgId);
         }
 
         return new ResponseEntity(OK);

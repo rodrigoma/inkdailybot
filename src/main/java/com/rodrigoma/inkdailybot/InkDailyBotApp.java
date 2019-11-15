@@ -2,19 +2,19 @@ package com.rodrigoma.inkdailybot;
 
 import com.rodrigoma.inkdailybot.job.SendWordsJob;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 import static java.lang.System.exit;
 import static java.util.Arrays.sort;
 import static java.util.Arrays.stream;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.boot.SpringApplication.run;
 
 @SpringBootApplication
 public class InkDailyBotApp {
 
-    private static final Logger logger = LoggerFactory.getLogger(InkDailyBotApp.class);
+    private static final Logger logger = getLogger(InkDailyBotApp.class);
 
     public static void main(String[] args) {
         ApplicationContext context = run(InkDailyBotApp.class, args);
