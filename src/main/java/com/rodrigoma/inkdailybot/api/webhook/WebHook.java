@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -36,9 +34,7 @@ public class WebHook {
     @RequestMapping(value = "/webhooks", method = POST, consumes = {APPLICATION_JSON_VALUE})
     public @ResponseBody ResponseEntity receiveUpdate(@RequestBody final String update) {
         JsonObject jUpdate = JsonParser.parseString(update).getAsJsonObject();
-        logger.info("Mensagem recebida! {}", jUpdate.toString());
-
-        logger.info("Teste data: {}", LocalDateTime.now().toString());
+        logger.info("Message received! {}", jUpdate.toString());
 
         if (jUpdate.getAsJsonObject("message").has("photo")) {
             int msgId = jUpdate.getAsJsonObject("message").get("message_id").getAsInt();

@@ -33,19 +33,19 @@ public class SendWordsJob {
     }
 
     public void send() {
-        logger.info("Bot rodando...");
+        logger.info("Bot running...");
 
         String fmtToday = now().format(ofPattern(FORMAT_DATE));
 
-        logger.info("Hoje eh {}...", fmtToday);
+        logger.info("Today is {}...", fmtToday);
 
         Set<String> wordsToInk;
 
         if (redis.hasKey(fmtToday)) {
-            logger.info("KEY encontrada...");
+            logger.info("KEY founded...");
             wordsToInk = redis.retriveWords(fmtToday);
         } else {
-            logger.info("KEY não encontrada...");
+            logger.info("KEY not found...");
             wordsToInk = pictionary.getRandomWord(fmtToday);
         }
 

@@ -20,7 +20,7 @@ public class Redis {
     private static final String MESSAGE_REPLACE_KEYWORD = "<WORDS>";
 
     private static final String MOTIVATION_KEY = "motivation";
-    private static final String MOTIVATION_REPLACE_KEYWORD = "NOME";
+    private static final String MOTIVATION_REPLACE_KEYWORD = "<NAME>";
 
     @Autowired
     public Redis(StringRedisTemplate stringRedisTemplate) {
@@ -39,14 +39,14 @@ public class Redis {
     }
 
     public Set<String> retriveWords(String fmtToday) {
-        logger.info("Pegando palavras do dia {}", fmtToday);
+        logger.info("Retriving words for today {}", fmtToday);
         return stringRedisTemplate
                 .opsForSet()
                 .members(fmtToday);
     }
 
     public String retriveMessage(String toReplace) {
-        logger.info("Buscando o texto da mensagem do Bot");
+        logger.info("Retriving message text...");
         return stringRedisTemplate
                 .opsForValue()
                 .get(MESSAGE_KEY)
@@ -54,7 +54,7 @@ public class Redis {
     }
 
     public String retriveMotivation(String userToReplace) {
-        logger.info("Buscando o texto de motivacao");
+        logger.info("Retriving motivation text...");
         return stringRedisTemplate
                 .opsForSet()
                 .randomMember(MOTIVATION_KEY)

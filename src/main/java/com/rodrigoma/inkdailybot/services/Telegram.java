@@ -34,7 +34,7 @@ public class Telegram {
     private Long telegramChatId;
 
     public void sendMessage(final String textMessage) {
-        logger.info("Enviando mensagem para o chatID: {}", telegramChatId);
+        logger.info("Sending messaga to chatID: {}", telegramChatId);
         post(telegramBotSendMessageUrl.replace(TELEGRAM_TO_REPLACE, telegramBotToken))
                 .field(TELEGRAM_FIELD_CHAT_ID, telegramChatId)
                 .field(TELEGRAM_FIELD_PARSE_MODE, TELEGRAM_VALUE_PARSE_MODE)
@@ -43,7 +43,7 @@ public class Telegram {
     }
 
     public void replyMessage(final String textMessage, final int replyMsgId) {
-        logger.info("Reply para a mensagem {} no chatID: {}", replyMsgId, telegramChatId);
+        logger.info("Reply message {} on chatID: {}", replyMsgId, telegramChatId);
         post(telegramBotSendMessageUrl.replace(TELEGRAM_TO_REPLACE, telegramBotToken))
                 .field(TELEGRAM_FIELD_CHAT_ID, telegramChatId)
                 .field(TELEGRAM_FIELD_PARSE_MODE, TELEGRAM_VALUE_PARSE_MODE)

@@ -38,7 +38,7 @@ public class Pictionary {
     }
 
     public Set<String> getRandomWord(String fmtToday) {
-        logger.info("Buscando nova palavra...");
+        logger.info("Searching new words...");
 
         StringBuilder body = new StringBuilder("category=").append(pictionaryCategory)
                 .append("&game=").append(pictionaryGame)
@@ -53,7 +53,7 @@ public class Pictionary {
                 .asJson();
 
         if (response.getStatus() != 200) {
-            logger.warn("Servico {} retornou null", pictionaryUrl);
+            logger.warn("Service {} returns null", pictionaryUrl);
             return null;
         }
 
@@ -63,7 +63,7 @@ public class Pictionary {
             String word = ((String) o).toUpperCase();
             wordsToInk.add(word);
             redis.addWord(fmtToday, word);
-            logger.info("Palavra {} gerada", word);
+            logger.info("Word {} generate", word);
 
         });
 
